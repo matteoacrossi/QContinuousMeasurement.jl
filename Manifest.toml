@@ -23,7 +23,9 @@ version = "0.5.8"
 
 [[BlockDiagonalMatrices]]
 deps = ["FillArrays", "LinearAlgebra"]
-path = "/Users/matteo/.julia/dev/BlockDiagonalMatrices"
+git-tree-sha1 = "2d87358582c2ed72617fb558b05c216a55f488cf"
+repo-rev = "master"
+repo-url = "https://github.com/matteoacrossi/BlockDiagonalMatrices.jl"
 uuid = "0a1fb501-61f7-11e9-3c65-f5ef3456f9f0"
 version = "0.1.7"
 
