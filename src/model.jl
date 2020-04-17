@@ -82,47 +82,49 @@ struct Model
     second_term::SuperOperator
     M0::BlockDiagonal
     dM::BlockDiagonal
-end
 
-function InitializeModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
-    Nj = modelparams.Nj
-    dt = modelparams.dt
-    kcoll = modelparams.kcoll
-    kind = modelparams.kind
-    ω = modelparams.omega
-    η = modelparams.eta
+    function Model(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
+        Nj = modelparams.Nj
+        dt = modelparams.dt
+        kcoll = modelparams.kcoll
+        kind = modelparams.kind
+        ω = modelparams.omega
+        η = modelparams.eta
 
-    # Spin operators
-    (Jx, Jy, Jz) = jspin(Nj)
+        # Spin operators
+        (Jx, Jy, Jz) = jspin(Nj)
 
-    # TOODO: Find better name
-    second_term = (1 - η) * dt * kcoll * sup_pre_post(sparse(Jy))
+        # TOODO: Find better name
+        second_term = (1 - η) * dt * kcoll * sup_pre_post(sparse(Jy))
 
-    let indprepost = isnothing(liouvillianfile) ? initliouvillian(Nj) : initliouvillian(Nj, liouvillianfile)
-        second_term += dt * (kind / 2) * indprepost
+        let indprepost = isnothing(liouvillianfile) ? initliouvillian(Nj) : initliouvillian(Nj, liouvillianfile)
+            second_term += dt * (kind / 2) * indprepost
+        end
+
+        dropzeros!(second_term)
+        second_term = SuperOperator(second_term)
+
+        (Jx, Jy, Jz) = map(blockdiagonal, (Jx, Jy, Jz))
+
+        Jx2 = Jx^2
+        Jy2 = Jy^2
+        Jz2 = Jz^2
+        H = ω * Jz
+        dH = Jz
+
+        # Kraus-like operator, trajectory-independent part
+        M0 = (I - 1im * H * dt -
+              0.25 * dt * kind * Nj * I - # The Id comes from the squares of sigmaz_j
+              (kcoll/2) * Jy2 * dt)
+
+        # Derivative of the Kraus-like operator wrt to ω
+        dM = -1im * dH * dt
+
+        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_term, M0, dM)
     end
-
-    dropzeros!(second_term)
-    second_term = SuperOperator(second_term)
-
-    (Jx, Jy, Jz) = map(blockdiagonal, (Jx, Jy, Jz))
-
-    Jx2 = Jx^2
-    Jy2 = Jy^2
-    Jz2 = Jz^2
-    H = ω * Jz
-    dH = Jz
-
-    # Kraus-like operator, trajectory-independent part
-    M0 = (I - 1im * H * dt -
-          0.25 * dt * kind * Nj * I - # The Id comes from the squares of sigmaz_j
-          (kcoll/2) * Jy2 * dt)
-
-    # Derivative of the Kraus-like operator wrt to ω
-    dM = -1im * dH * dt
-
-    Model(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_term, M0, dM)
 end
+
+InitializeModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing) = Model(modelparams, liouvillianfile)
 
 get_time(m::Model) = get_time(m.params)
 
