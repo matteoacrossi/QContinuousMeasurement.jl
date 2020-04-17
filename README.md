@@ -88,4 +88,4 @@ If you obtain the following error when importing `QContinuousMeasurement`:
 
 run the following before starting Julia:
 
-    export LD_PRELOAD=/home/matros/.julia/conda/3/lib/libstdc++.so
+    export LD_PRELOAD=$HOME/.julia/conda/3/lib/libstdc++.so
