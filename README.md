@@ -20,6 +20,43 @@ pkg> dev QContinuousMeasurement
 
 ## Usage
 
+First, we initialize a `ModelParameters` object.
+
+```julia
+params = ModelParameters(Nj=3,
+                         kind=1.0,
+                         kcoll=1.0,
+                         omega=1.0,
+                         eta=1.0,
+                         dt=0.001,
+                         Tfinal=2.0,
+                         outpoints=200)
+```
+
+Then, we can initialize a `Model` object and a `State`.
+
+```julia
+model = Model(params)
+initial_state = coherentspinstate(params.Nj)
+```
+
+To simulate one trajectory run
+
+```julia
+result = simulate_trajectory(model, initial_state);
+```
+
+To plot the FI for the trajectory, use
+
+```julia
+using Plots
+plot(get_time(model), result.FI)
+```
+
+The old interface of ContinuousMeasurementFI still works for calculating averages.
+
+## Usage (old interface)
+
 This will evaluate the effective QFI for 3 spins with 100 trajectories and compare it with the unconditional dynamics
 
 ```julia
