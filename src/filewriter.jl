@@ -46,7 +46,9 @@ function writer_task(fid, datasets, channel)
             for (d, data) in pairs(traj_result)
                 if string(d) in keys(datasets)
                     try
-                        datasets[string(d)][:, counter] = data
+                        ds = datasets[string(d)]
+                        ds[:, counter] = data
+                        flush(ds)
                     catch er
                         @error er
                     end
