@@ -31,7 +31,7 @@ Base.show(io::IO, x::ModelParameters) = begin
             "κ_c"   x.kcoll "Collective noise rate";
             "ω"     x.omega "Frequency";
             "η"     x.eta   "Measurement efficiency"]
-    pretty_table(io, data, ["Param.", "Value", "Description"], alignment=[:l, :r, :l])
+    pretty_table(io, data, ["Parameter", "Value", "Description"], alignment=[:l, :r, :l])
 
     println(io, "\nSimulation Parameters")
     data = ["Tfinal" x.Tfinal "Final time";
