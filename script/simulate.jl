@@ -141,18 +141,18 @@ else
 end
 
 
-@everywhere function thread_simulate_trajectory(model, initial_state, ntraj, filewriter, progress_channel)
+@everywhere function thread_simulate_trajectory(model, initial_state, ntraj, file_channel, progress_channel)
     pid = Distributed.myid()
     nth = Threads.nthreads()
     Threads.@threads for i in 1:ntraj
         tid = Threads.threadid()
         #println("Hello from thread $tid of $nth on worker $pid.")
-        simulate_trajectory(model, initial_state, filewriter, progress_channel)
+        simulate_trajectory(model, initial_state, file_channel, progress_channel)
     end
 end
 
 trajectory_time = @elapsed begin
-    pmap(x -> thread_simulate_trajectory(model, initial_state, numthreads, writer, progress_channel), 1:numthreads:Ntraj)
+    pmap(x -> thread_simulate_trajectory(model, initial_state, numthreads, filewriter.channel, progress_channel), 1:numthreads:Ntraj)
 end
 
 put!(progress_channel, false)
