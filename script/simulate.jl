@@ -151,8 +151,10 @@ end
     end
 end
 
+file_channel = writer.channel
+
 trajectory_time = @elapsed begin
-    pmap(x -> thread_simulate_trajectory(model, initial_state, numthreads, filewriter.channel, progress_channel), 1:numthreads:Ntraj)
+    pmap(x -> thread_simulate_trajectory(model, initial_state, numthreads, file_channel, progress_channel), 1:numthreads:Ntraj)
 end
 
 put!(progress_channel, false)
