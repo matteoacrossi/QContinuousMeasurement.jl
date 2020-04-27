@@ -9,7 +9,7 @@ typedict(x) = Dict(string(fn)=>getfield(x, fn) for fn ∈ fieldnames(typeof(x)))
 @testset "FileWriter" begin
     Ntraj = 100
 
-    params = ModelParameters(outpoints=200)
+    params = CollectiveLocalDephasingModelParameters(outpoints=200)
 
     timevector = collect(get_time(params))
 
