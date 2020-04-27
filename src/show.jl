@@ -1,6 +1,6 @@
 using PrettyTables
 
-Base.show(io::IO, model::Model) = begin
+Base.show(io::IO, model::CollectiveLocalDephasingModel) = begin
     type = typeof(model.Jx)
     m = Base.format_bytes(Base.summarysize(model))
     println(io, "Continuous monitoring model with $(model.params.Nj)-spin Dicke state\n")
@@ -14,15 +14,41 @@ Base.show(io::IO, model::Model) = begin
     println(io, "Total memory: $m\n")
 
     show(io, model.params)
-
 end
 
-Base.show(io::IO, state::State) = begin
+Base.show(io::IO, model::CollectiveDephasingModel) = begin
+    type = typeof(model.Jx)
+    m = Base.format_bytes(Base.summarysize(model))
+    println(io, "Continuous monitoring model with $(model.params.Nj)-spin Dicke state\n")
+
+    println(io, "Operator type: $(typeof(model.M0))")
+    sup_size = size(model.second_term)
+    nvals = length(model.second_term.nzval)
+    density = nvals / (*(sup_size...))
+    println(io, "Superoperator: $sup_size with $nvals stored entries (density $density)")
+
+    println(io, "Total memory: $m\n")
+
+    show(io, model.params)
+end
+
+
+Base.show(io::IO, state::BlockDiagonalState) = begin
     n = size(state.ρ, 1)
     type = typeof(state.ρ)
     m = Base.format_bytes(Base.summarysize(state))
     println(io, "Dicke state for $(nspins(n)) spins. $n × $n matrix of type $type. Total memory: $m")
 end
+
+
+
+Base.show(io::IO, state::FixedjState) = begin
+    n = size(state.ρ, 1)
+    type = typeof(state.ρ)
+    m = Base.format_bytes(Base.summarysize(state))
+    println(io, "Dicke state: $n × $n matrix of type $type. Total memory: $m")
+end
+
 
 Base.show(io::IO, x::ModelParameters) = begin
     println(io, "Model Parameters")
