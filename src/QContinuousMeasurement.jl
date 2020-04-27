@@ -35,12 +35,12 @@ module QContinuousMeasurement
     export liouvillian, jspin, css
     export Model, ModelParameters, State, updatestate!, measure_current, expectation_value!
     export get_time
-    export InitializeModel, coherentspinstate
-    export FileWriter, write_to_file
+    export InitializeModel, blockdiag_css
+    export FileWriter
 
     include("NoiseOperators.jl")
-    include("model.jl")
     include("States.jl")
+    include("model.jl")
     include("Fisher.jl")
     include("Molmer_QFI.jl")
     include("Uncond_qfi_transverse.jl")

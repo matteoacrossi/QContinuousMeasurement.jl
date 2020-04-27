@@ -113,7 +113,7 @@ modelparams = ModelParameters(Nj=args["Nj"],
 
 init_time = @elapsed begin
 @everywhere model = InitializeModel($modelparams, $args["liouvillianfile"])
-@everywhere initial_state = coherentspinstate($modelparams.Nj)
+@everywhere initial_state = blockdiag_css($modelparams.Nj)
 end
 
 println(model)

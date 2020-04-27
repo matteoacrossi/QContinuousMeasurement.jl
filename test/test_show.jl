@@ -6,7 +6,7 @@ Nj = 2
 modelparams = ModelParameters(Nj=Nj)
 
 model = InitializeModel(modelparams)
-initial_state = coherentspinstate(Nj)
+initial_state = blockdiag_css(Nj)
 
 println(model)
 println(initial_state)
