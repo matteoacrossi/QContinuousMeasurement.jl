@@ -1,37 +1,49 @@
 #=
-Functions for constructing initial states
+Definition of a state
 =#
-"""
-    coherent_state(n)
 
-Return the state ``\\ket{+}^{\\otimes n}`` in the computational basis
-"""
-function coherent_state(n::Int)
-    @assert n > 0 "n must be a positive integer"
-    spinup = Vector{Complex{Float64}}([1., 0.])
-    spindown = Vector{Complex{Float64}}([0., 1.])
+abstract type State end
 
-    if n==1
-        return (spinup + spindown) / sqrt(2.)
-    end
-    return kron([(spinup + spindown) / sqrt(2.) for i in 1:n]...)
+struct BlockDiagonalState <: State
+    ρ::BlockDiagonal
+    dρ::BlockDiagonal
+    τ::BlockDiagonal
+    # Internal fields
+    _tmp1::BlockDiagonal
+    _tmp2::BlockDiagonal
+    _new_ρ::BlockDiagonal
+
+    BlockDiagonalState(ρ::BlockDiagonal) = new(ρ, zero(ρ), zero(ρ), similar(ρ), similar(ρ), similar(ρ))
 end
 
-"""
-    ghz_state(n)
+density_matrix(state::BlockDiagonalState) = state.ρ
 
-Return the GHZ state ``(\\ket{00...0} + \\ket{11...1}) / \\sqrt{2}`` in the computational basis
-"""
-function ghz_state(n::Int)
-    @assert n > 0 "n must be a positive integer"
-    r = zeros(Complex{Float64}, 2^n)
-    r[1] = r[end] = 1. / sqrt(2.)
-    return r
+# Copy constructor
+BlockDiagonalState(state::BlockDiagonalState) = BlockDiagonalState(copy(density_matrix(state)))
+
+function blockdiag_css(Nj, dense=true)
+    ρ0 = blockdiagonal(css(Nj), dense=dense)
+    BlockDiagonalState(ρ0)
 end
 
-function random_state(n::Int)
-    @assert n > 0 "n must be a positive integer"
-    r = rand(Complex{Float64}, 2^n)
-    r /= norm(r)
-    return r
+
+struct FixedjState <: State
+    ρ::Matrix
+    dρ::Matrix
+    τ::Matrix
+    # Internal fields
+    _tmp1::Matrix
+    _tmp2::Matrix
+    _new_ρ::Matrix
+
+    FixedjState(ρ::Matrix) = new(ρ, zero(ρ), zero(ρ), similar(ρ), similar(ρ), similar(ρ))
+end
+
+density_matrix(state::FixedjState) = state.ρ
+FixedjState(state::FixedjState) = FixedjState(copy(density_matrix(state)))
+
+function fixedj_css(Nj::Int64)
+    state = css(Nj)
+    firstblock = block_sizes(Nj)[1]
+    return FixedjState(Matrix(state[1:firstblock, 1:firstblock]))
 end
