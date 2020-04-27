@@ -81,9 +81,9 @@ function Eff_QFI_HD_Dicke(Nj::Int64, # Number of spins
     @info "Eff_QFI_HD_Dicke starting"
     @info "Parameters" Nj Ntraj Tfinal dt κ κcoll ω η outpoints
 
-    modelparams = ModelParameters(Nj=Nj, kind=κ, kcoll=κcoll, omega=ω, eta=η, dt=dt, Tfinal=Tfinal, outpoints=outpoints)
+    modelparams = CollectiveLocalDephasingModelParameters(Nj=Nj, kind=κ, kcoll=κcoll, omega=ω, eta=η, dt=dt, Tfinal=Tfinal, outpoints=outpoints)
 
-    model = InitializeModel(modelparams)
+    model = CollectiveLocalDephasingModel(modelparams)
     initial_state = blockdiag_css(Nj)
 
     # Run evolution for each trajectory, and build up the average
