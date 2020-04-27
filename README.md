@@ -37,7 +37,7 @@ Then, we can initialize a `Model` object and a `State`.
 
 ```julia
 model = Model(params)
-initial_state = coherentspinstate(params.Nj)
+initial_state = blockdiag_css(params.Nj)
 ```
 
 To simulate one trajectory run
