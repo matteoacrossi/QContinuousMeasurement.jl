@@ -64,6 +64,7 @@ struct CollectiveLocalDephasingModel <: Model
     Jx2::BlockDiagonal
     Jy2::BlockDiagonal
     Jz2::BlockDiagonal
+    inefficient_measurement::BlockDiagonal
     second_term::SuperOperator
     M0::BlockDiagonal
     dM::BlockDiagonal
@@ -77,19 +78,16 @@ struct CollectiveLocalDephasingModel <: Model
         η = modelparams.eta
 
         # Spin operators
-        (Jx, Jy, Jz) = jspin(Nj)
+        (Jx, Jy, Jz) = map(blockdiagonal, jspin(Nj))
 
         # TOODO: Find better name
-        second_term = (1 - η) * dt * kcoll * sup_pre_post(sparse(Jy))
+        inefficient_measurement = sqrt((1 - η) * dt * kcoll) * Jy
 
-        let indprepost = isnothing(liouvillianfile) ? initliouvillian(Nj) : initliouvillian(Nj, liouvillianfile)
-            second_term += dt * (kind / 2) * indprepost
-        end
+        indprepost = isnothing(liouvillianfile) ? initliouvillian(Nj) : initliouvillian(Nj, liouvillianfile)
+        second_term = dt * (kind / 2) * indprepost
 
         dropzeros!(second_term)
         second_term = SuperOperator(second_term)
-
-        (Jx, Jy, Jz) = map(blockdiagonal, (Jx, Jy, Jz))
 
         Jx2 = Jx^2
         Jy2 = Jy^2
@@ -105,7 +103,7 @@ struct CollectiveLocalDephasingModel <: Model
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
 
-        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_term, M0, dM)
+        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, inefficient_measurement, second_term, M0, dM)
     end
 end
 
@@ -155,7 +153,11 @@ function updatestate!(state::BlockDiagonalState, model::CollectiveLocalDephasing
     @timeit_debug "rho" begin
         mul!(state._tmp1, state.ρ, M')
         mul!(state._new_ρ, M, state._tmp1)
+
         @timeit_debug "superop" apply_superop!(state._tmp1, model.second_term, state.ρ)
+
+        mul!(state._tmp2, model.inefficient_measurement, state.ρ)
+        mul!(state._tmp1, state._tmp2, model.inefficient_measurement', 1.0, 1.0)
 
         # TODO: Replace with broadcasting once implemented
         @inbounds for i in eachindex(state._new_ρ.blocks)
@@ -172,8 +174,13 @@ function updatestate!(state::BlockDiagonalState, model::CollectiveLocalDephasing
     @timeit_debug "tau" begin
         mul!(state._tmp1, state.ρ, model.dM')
         mul!(state._tmp1, state.τ, M', 1., 1.)
+
         @timeit_debug "superop" apply_superop!(state._tmp2, model.second_term, state.τ)
         mul!(state._tmp2, M, state._tmp1, 1., 1.)
+
+        mul!(state._tmp1, model.inefficient_measurement, state.τ)
+        mul!(state._tmp2, state._tmp1, model.inefficient_measurement', 1.0, 1.0)
+
         mul!(state._tmp1, state.ρ, M')
         mul!(state._tmp2, model.dM, state._tmp1, 1., 1.)
 
