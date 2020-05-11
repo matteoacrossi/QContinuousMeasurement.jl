@@ -3,12 +3,12 @@ using Distributed
 using TimerOutputs
 using ProgressMeter
 
-function simulate_trajectory(model::Model,
-                             initial_state::State,
+function simulate_trajectory(model::Tm,
+                             initial_state::Ts,
                              file_channel::Union{Channel,RemoteChannel,Nothing}=nothing,
-                             progress_channel::Union{Channel,RemoteChannel,Nothing}=nothing)
+                             progress_channel::Union{Channel,RemoteChannel,Nothing}=nothing) where {Tm <: Model, Ts <:State}
 
-    state = State(initial_state) # Copy the initial state
+    state = Ts(initial_state) # Copy the initial state
 
     jx = Array{Float64}(undef, length(get_time(model)))
     # Output variables
@@ -63,6 +63,8 @@ function simulate_trajectory(model::Model,
                     Δjx2=Δjx2, Δjy2=Δjy2, Δjz2=Δjz2,
                     xi2x=xi2x, xi2y=xi2y, xi2z=xi2z)
     isnothing(file_channel) || put!(file_channel, result)
+
+    GC.gc()
     return result
 end
 
@@ -81,10 +83,10 @@ function Eff_QFI_HD_Dicke(Nj::Int64, # Number of spins
     @info "Eff_QFI_HD_Dicke starting"
     @info "Parameters" Nj Ntraj Tfinal dt κ κcoll ω η outpoints
 
-    modelparams = ModelParameters(Nj=Nj, kind=κ, kcoll=κcoll, omega=ω, eta=η, dt=dt, Tfinal=Tfinal, outpoints=outpoints)
+    modelparams = CollectiveLocalDephasingModelParameters(Nj=Nj, kind=κ, kcoll=κcoll, omega=ω, eta=η, dt=dt, Tfinal=Tfinal, outpoints=outpoints)
 
-    model = InitializeModel(modelparams)
-    initial_state = coherentspinstate(Nj)
+    model = CollectiveLocalDephasingModel(modelparams)
+    initial_state = blockdiag_css(Nj)
 
     # Run evolution for each trajectory, and build up the average
     # for FI and final strong measurement QFI
