@@ -63,6 +63,8 @@ function simulate_trajectory(model::Tm,
                     Δjx2=Δjx2, Δjy2=Δjy2, Δjz2=Δjz2,
                     xi2x=xi2x, xi2y=xi2y, xi2z=xi2z)
     isnothing(file_channel) || put!(file_channel, result)
+
+    GC.gc()
     return result
 end
 
