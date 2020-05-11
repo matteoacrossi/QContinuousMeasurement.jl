@@ -83,8 +83,9 @@ struct CollectiveLocalDephasingModel <: Model
         # TOODO: Find better name
         inefficient_measurement = sqrt((1 - η) * dt * kcoll) * Jy
 
-        indprepost = isnothing(liouvillianfile) ? initliouvillian(Nj) : initliouvillian(Nj, liouvillianfile)
-        second_term = dt * (kind / 2) * indprepost
+        second_term = dt * (kind / 2) * (isnothing(liouvillianfile) ?
+                                            initliouvillian(Nj) :
+                                            initliouvillian(Nj, liouvillianfile))
 
         dropzeros!(second_term)
         second_term = SuperOperator(second_term)
