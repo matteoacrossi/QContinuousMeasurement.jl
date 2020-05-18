@@ -157,8 +157,10 @@ function updatestate!(state::BlockDiagonalState, model::CollectiveLocalDephasing
 
         @timeit_debug "superop" apply_superop!(state._tmp1, model.second_term, state.ρ)
 
-        mul!(state._tmp2, model.inefficient_measurement, state.ρ)
-        mul!(state._tmp1, state._tmp2, model.inefficient_measurement', 1.0, 1.0)
+        if model.params.eta < 1.0
+            mul!(state._tmp2, model.inefficient_measurement, state.ρ)
+            mul!(state._tmp1, state._tmp2, model.inefficient_measurement', 1.0, 1.0)
+        end
 
         # TODO: Replace with broadcasting once implemented
         @inbounds for i in eachindex(state._new_ρ.blocks)
@@ -179,8 +181,10 @@ function updatestate!(state::BlockDiagonalState, model::CollectiveLocalDephasing
         @timeit_debug "superop" apply_superop!(state._tmp2, model.second_term, state.τ)
         mul!(state._tmp2, M, state._tmp1, 1., 1.)
 
-        mul!(state._tmp1, model.inefficient_measurement, state.τ)
-        mul!(state._tmp2, state._tmp1, model.inefficient_measurement', 1.0, 1.0)
+        if model.params.eta < 1.0
+            mul!(state._tmp1, model.inefficient_measurement, state.τ)
+            mul!(state._tmp2, state._tmp1, model.inefficient_measurement', 1.0, 1.0)
+        end
 
         mul!(state._tmp1, state.ρ, M')
         mul!(state._tmp2, model.dM, state._tmp1, 1., 1.)
