@@ -1,5 +1,7 @@
 # QContinuousMeasurement
 
+[![DOI](https://zenodo.org/badge/255846594.svg)](https://zenodo.org/badge/latestdoi/255846594)
+
 ## Installation
 
 Requires Julia v1.0.
