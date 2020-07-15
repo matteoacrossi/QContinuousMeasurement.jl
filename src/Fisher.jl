@@ -93,3 +93,19 @@ function QFI!(state::State, abstol = 1e-5)
     copy!(state._tmp1, state.ρ)
     QFI!(state._tmp1, state.dρ)
 end
+
+function FI(ρ::BlockDiagonal, dρ::BlockDiagonal, op::BlockDiagonal)
+    ed = eigen(op)
+    return FI(ρ, dρ, ed)
+end
+
+function FI(ρ::BlockDiagonal, dρ::BlockDiagonal, measurement::Eigen)
+    # We use Eq. (4) of Paris, Int. J. Quantum Inf. 7, 125 (2009)
+    # We need the projectors onto the subspaces of the operator op
+    fi = 0.0
+    for i in 1:size(measurement.vectors, 1)
+        evec = measurement.vectors[:, i]
+        fi += real(evec' * dρ * evec / (evec' * ρ * evec))
+    end
+    return fi
+end
