@@ -36,7 +36,7 @@ t = t[outsteps:outsteps:end]
 
 # Precompile
 model_p = InitializeModel(modelparams)
-initial_state_p = coherentspinstate(modelparams.Nj)
+initial_state_p = blockdiag_css(modelparams.Nj)
 dy = measure_current(initial_state_p, model_p)
 #updatekraus!(model_p, dy)
 tr_ρ, tr_τ = updatestate!(initial_state_p, model_p, dy)
@@ -46,7 +46,7 @@ expectation_value!(initial_state_p, model_p.Jx)
 TimerOutputs.enable_debug_timings(QContinuousMeasurement)
 reset_timer!()
 @timeit "Model creation" model = InitializeModel(modelparams)
-@timeit "State creation" initial_state = coherentspinstate(modelparams.Nj)
+@timeit "State creation" initial_state = blockdiag_css(modelparams.Nj)
 
 @info "Starting trajectories simulation..."
 for ktraj = 1 : Ntraj
