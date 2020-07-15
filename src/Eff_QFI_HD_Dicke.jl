@@ -23,6 +23,9 @@ function simulate_trajectory(model::Tm,
     FisherT = similar(jx)
     QFisherT = similar(jx)
 
+    FisherStrong = similar(jx)
+
+
     jto = 1 # Counter for the output
 
     for jt = 1 : model.params.Ntime
@@ -45,6 +48,9 @@ function simulate_trajectory(model::Tm,
             # We evaluate the QFI for a final strong measurement done at time t
             QFisherT[jto] = QFI!(state)
 
+            # Fisher of the strong final measurement
+            FisherStrong[jto] = FI(state, model.measurement)
+
             jto += 1
             isnothing(progress_channel) || put!(progress_channel, true)
         end
@@ -61,7 +67,7 @@ function simulate_trajectory(model::Tm,
     result = (FI=FisherT, QFI=QFisherT,
                     Jx=jx, Jy=jy, Jz=jz,
                     Δjx2=Δjx2, Δjy2=Δjy2, Δjz2=Δjz2,
-                    xi2x=xi2x, xi2y=xi2y, xi2z=xi2z)
+                    xi2x=xi2x, xi2y=xi2y, xi2z=xi2z, FIstrong=FisherStrong)
     isnothing(file_channel) || put!(file_channel, result)
 
     GC.gc()
@@ -97,7 +103,7 @@ function Eff_QFI_HD_Dicke(Nj::Int64, # Number of spins
         hcat(result.FI, result.QFI,
              result.Jx, result.Jy, result.Jz,
              result.Δjx2, result.Δjy2, result.Δjz2,
-             result.xi2x, result.xi2y, result.xi2z)
+             result.xi2x, result.xi2y, result.xi2z, result.FIstrong)
     end
     end
 
@@ -120,7 +126,7 @@ function Eff_QFI_HD_Dicke(Nj::Int64, # Number of spins
             QFI=result[:,2] / Ntraj,
             jx=jx, jy=jy, jz=jz,
             Δjx=Δjx2, Δjy=Δjy2, Δjz=Δjz2,
-            xi2x=xi2x, xi2y=xi2y, xi2z=xi2z)
+            xi2x=xi2x, xi2y=xi2y, xi2z=xi2z, FIstrong= result[:, 12] / Ntraj)
 end
 
 """
