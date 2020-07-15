@@ -99,13 +99,30 @@ function FI(ρ::BlockDiagonal, dρ::BlockDiagonal, op::BlockDiagonal)
     return FI(ρ, dρ, ed)
 end
 
-function FI(ρ::BlockDiagonal, dρ::BlockDiagonal, measurement::Eigen)
+function FI(ρ::Matrix, dρ::Matrix, measurement::Eigen)
     # We use Eq. (4) of Paris, Int. J. Quantum Inf. 7, 125 (2009)
     # We need the projectors onto the subspaces of the operator op
     fi = 0.0
     for i in 1:size(measurement.vectors, 1)
         evec = measurement.vectors[:, i]
-        fi += real(evec' * dρ * evec / (evec' * ρ * evec))
+        denominator = real(evec' * ρ * evec)
+        # Empty blocks would cause a division by 0
+        if denominator > 0
+            fi += real(evec' * dρ * evec)^2 / denominator
+        end
     end
     return fi
 end
+
+function FI(ρ::BlockDiagonal, dρ::BlockDiagonal, measurement::Array{Eigen})
+    # We use Eq. (4) of Paris, Int. J. Quantum Inf. 7, 125 (2009)
+    # We need the projectors onto the subspaces of the operator op
+    fi = 0.0
+    for i in 1:nblocks(ρ)
+        fi += FI(ρ.blocks[i], dρ.blocks[i], measurement[i])
+    end
+    return fi
+end
+
+FI(state::State, measurement::Eigen) = FI(state.ρ, state.dρ, measurement)
+FI(state::State, measurement::Array{Eigen}) = FI(state.ρ, state.dρ, measurement)
