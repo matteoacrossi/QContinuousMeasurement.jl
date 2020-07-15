@@ -1,6 +1,7 @@
 # QContinuousMeasurement
 
 [![DOI](https://zenodo.org/badge/255846594.svg)](https://zenodo.org/badge/latestdoi/255846594)
+[![arXiv](https://img.shields.io/badge/arXiv-2006.08974-b31b1b.svg)](https://arxiv.org/abs/2006.08974)
 
 ## Installation
 
@@ -91,3 +92,13 @@ If you obtain the following error when importing `QContinuousMeasurement`:
 run the following before starting Julia:
 
     export LD_PRELOAD=$HOME/.julia/conda/3/lib/libstdc++.so
+    
+## Citation
+This code has been developed for the following preprint:
+
+[Matteo A. C. Rossi, Francesco Albarelli, Dario Tamascelli, Marco G. Genoni, "Noisy quantum metrology enhanced by continuous nondemolition measurement", arXiv:2006.08974 (2020)](https://arxiv.org/abs/2006.08974)
+
+Please cite it if you are using this code.
+
+
+
