@@ -68,6 +68,7 @@ struct CollectiveLocalDephasingModel <: Model
     second_term::SuperOperator
     M0::BlockDiagonal
     dM::BlockDiagonal
+    measurement::Array{Eigen}
 
     function CollectiveLocalDephasingModel(modelparams::CollectiveLocalDephasingModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
@@ -104,7 +105,9 @@ struct CollectiveLocalDephasingModel <: Model
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
 
-        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, inefficient_measurement, second_term, M0, dM)
+        measurement = map(x -> eigen(Matrix(x)), Jy.blocks)
+
+        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, inefficient_measurement, second_term, M0, dM, measurement)
     end
 end
 
