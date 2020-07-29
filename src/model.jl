@@ -5,11 +5,10 @@ using TimerOutputs
 
 abstract type Model end
 
-abstract type ModelParameters end
-
-struct CollectiveLocalDephasingModelParameters <: ModelParameters
+struct ModelParameters
     Nj::Integer
     kind::Real
+    kcoll::Real
     Gamma::Real
     omega::Real
     eta::Real
@@ -19,8 +18,9 @@ struct CollectiveLocalDephasingModelParameters <: ModelParameters
     outpoints::Integer
     _outsteps::Integer
 
-    function CollectiveLocalDephasingModelParameters(; Nj::Integer=1,
+    function ModelParameters(; Nj::Integer=1,
                                kind::Real=1.0,
+                               kcoll::Real=1.0,
                                Gamma::Real=1.0,
                                omega::Real=1.0,
                                eta::Real=1.0,
@@ -42,7 +42,7 @@ struct CollectiveLocalDephasingModelParameters <: ModelParameters
         end
         #outpoints = Ntime
 
-        new(Nj, kind, Gamma, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
+        new(Nj, kind, kcoll, Gamma, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
     end
 end
 
@@ -57,7 +57,7 @@ struct KrausOperator
 end
 
 struct CollectiveLocalDephasingModel <: Model
-    params::CollectiveLocalDephasingModelParameters
+    params::ModelParameters
     Jx::BlockDiagonal
     Jy::BlockDiagonal
     Jz::BlockDiagonal
@@ -70,7 +70,7 @@ struct CollectiveLocalDephasingModel <: Model
     dM::BlockDiagonal
     measurement::Array{Eigen}
 
-    function CollectiveLocalDephasingModel(modelparams::CollectiveLocalDephasingModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
+    function CollectiveLocalDephasingModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
         dt = modelparams.dt
         Gamma = modelparams.Gamma
@@ -110,8 +110,6 @@ struct CollectiveLocalDephasingModel <: Model
         new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, inefficient_measurement, second_term, M0, dM, measurement)
     end
 end
-
-InitializeModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing) = Model(modelparams, liouvillianfile)
 
 get_time(m::Model) = get_time(m.params)
 
@@ -216,46 +214,8 @@ end
 expectation_value!(state::State, op::AbstractArray) = real(tr(mul!(state._tmp1, op, density_matrix(state))))
 
 
-struct CollectiveDephasingModelParameters <: ModelParameters
-    Nj::Integer
-    Gamma::Real
-    kind::Real
-    omega::Real
-    eta::Real
-    dt::Real
-    Tfinal::Real
-    Ntime::Integer
-    outpoints::Integer
-    _outsteps::Integer
-
-    function CollectiveDephasingModelParameters(; Nj::Integer=1,
-                               Gamma::Real=1.0,
-                               omega::Real=1.0,
-                               eta::Real=1.0,
-                               dt::Real=0.0001,
-                               Tfinal::Real=1.0,
-                               outpoints::Integer=0)
-
-        Ntime = Int(floor(Tfinal/dt)) # Number of timesteps
-
-        outsteps = 1
-        if outpoints > 0
-
-            try
-                outsteps = Int(round(Tfinal / dt / outpoints, digits=3))
-            catch InexactError
-                @warn "The requested $outpoints output points does not divide
-                the total time steps. Using the full time output."
-            end
-        end
-        #outpoints = Ntime
-
-        new(Nj, Gamma, 0.0, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
-    end
-end
-
 struct CollectiveDephasingModel <: Model
-    params::CollectiveDephasingModelParameters
+    params::ModelParameters
     Jx::SparseMatrixCSC
     Jy::SparseMatrixCSC
     Jz::SparseMatrixCSC
@@ -266,9 +226,10 @@ struct CollectiveDephasingModel <: Model
     M0::SparseMatrixCSC
     dM::SparseMatrixCSC
 
-    function CollectiveDephasingModel(modelparams::CollectiveDephasingModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
+    function CollectiveDephasingModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
         dt = modelparams.dt
+        kcoll = modelparams.kcoll
         Gamma = modelparams.Gamma
         ω = modelparams.omega
         η = modelparams.eta
@@ -336,6 +297,7 @@ function updatestate!(state::FixedjState, model::CollectiveDephasingModel, dy::R
         tr_ρ = tr(state._new_ρ)
         # Evolve the unnormalized derivative wrt ω
     end
+
     # Non-allocating code for
     # τ = (Mpre * (Mpost * τ  +  dMpost * ρ) + dMpre * Mpost * ρ +
     #      second_term * τ )/ tr_ρ;

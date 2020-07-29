@@ -103,7 +103,7 @@ Ntraj = args["Ntraj"]
 
 @everywhere to = TimerOutput()
 
-modelparams = CollectiveLocalDephasingModelParameters(Nj=args["Nj"],
+modelparams = ModelParameters(Nj=args["Nj"],
                               kind=args["kind"],
                               Gamma=args["Gamma"],
                               omega=args["omega"],

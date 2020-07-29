@@ -96,7 +96,7 @@ function Eff_QFI_HD_Dicke(Nj::Int64, # Number of spins
     @info "Eff_QFI_HD_Dicke starting"
     @info "Parameters" Nj Ntraj Tfinal dt κ κcoll ω η outpoints
 
-    modelparams = CollectiveLocalDephasingModelParameters(Nj=Nj, kind=κ, Gamma=κcoll, omega=ω, eta=η, dt=dt, Tfinal=Tfinal, outpoints=outpoints)
+    modelparams = ModelParameters(Nj=Nj, kind=κ, Gamma=κcoll, kcoll=0., omega=ω, eta=η, dt=dt, Tfinal=Tfinal, outpoints=outpoints)
 
     model = CollectiveLocalDephasingModel(modelparams)
     initial_state = blockdiag_css(Nj)
