@@ -19,13 +19,15 @@ typedict(x) = Dict(string(fn)=>getfield(x, fn) for fn ∈ fieldnames(typeof(x)))
     FI = rand(length(timevector), Ntraj)
     QFI = rand(length(timevector), Ntraj)
     xi2y = rand(length(timevector), Ntraj)
+    FIstrong = rand(length(timevector), Ntraj)
 
-    writer = FileWriter(filename, params, Ntraj, ["FI", "QFI", "xi2y", "something"])
+    writer = FileWriter(filename, params, Ntraj, ["FI", "QFI", "xi2y", "something", "FIstrong"])
 
     for i=1:Ntraj
         tuple = (FI=FI[:, i],
                  QFI=QFI[:, i],
                  xi2y=xi2y[:, i],
+                 FIstrong=FIstrong[:, i],
                  extrafield=xi2y[:, i]) # This field should be ignored
         put!(writer, tuple)
     end
