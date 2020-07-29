@@ -54,7 +54,7 @@ Base.show(io::IO, x::ModelParameters) = begin
     println(io, "Model Parameters")
     data = ["Nj"    x.Nj    "Number of spins";
             "κ_i"   x.kind  "Independent noise rate";
-            "κ_c"   x.kcoll "Collective noise rate";
+            "κ_c"   x.Gamma "Collective noise rate";
             "ω"     x.omega "Frequency";
             "η"     x.eta   "Measurement efficiency"]
     pretty_table(io, data, ["Parameter", "Value", "Description"], alignment=[:l, :r, :l])

@@ -27,7 +27,7 @@ First, we initialize a `ModelParameters` object.
 ```julia
 params = ModelParameters(Nj=3,
                          kind=1.0,
-                         kcoll=1.0,
+                         Gamma=1.0,
                          omega=1.0,
                          eta=1.0,
                          dt=0.001,

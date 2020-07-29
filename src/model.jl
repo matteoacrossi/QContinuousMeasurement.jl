@@ -10,7 +10,7 @@ abstract type ModelParameters end
 struct CollectiveLocalDephasingModelParameters <: ModelParameters
     Nj::Integer
     kind::Real
-    kcoll::Real
+    Gamma::Real
     omega::Real
     eta::Real
     dt::Real
@@ -21,7 +21,7 @@ struct CollectiveLocalDephasingModelParameters <: ModelParameters
 
     function CollectiveLocalDephasingModelParameters(; Nj::Integer=1,
                                kind::Real=1.0,
-                               kcoll::Real=1.0,
+                               Gamma::Real=1.0,
                                omega::Real=1.0,
                                eta::Real=1.0,
                                dt::Real=0.0001,
@@ -42,7 +42,7 @@ struct CollectiveLocalDephasingModelParameters <: ModelParameters
         end
         #outpoints = Ntime
 
-        new(Nj, kind, kcoll, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
+        new(Nj, kind, Gamma, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
     end
 end
 
@@ -73,7 +73,7 @@ struct CollectiveLocalDephasingModel <: Model
     function CollectiveLocalDephasingModel(modelparams::CollectiveLocalDephasingModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
         dt = modelparams.dt
-        kcoll = modelparams.kcoll
+        Gamma = modelparams.Gamma
         kind = modelparams.kind
         ω = modelparams.omega
         η = modelparams.eta
@@ -82,7 +82,7 @@ struct CollectiveLocalDephasingModel <: Model
         (Jx, Jy, Jz) = map(blockdiagonal, jspin(Nj))
 
         # TOODO: Find better name
-        inefficient_measurement = sqrt((1 - η) * dt * kcoll) * Jy
+        inefficient_measurement = sqrt((1 - η) * dt * Gamma) * Jy
 
         second_term = dt * (kind / 2) * (isnothing(liouvillianfile) ?
                                             initliouvillian(Nj) :
@@ -100,7 +100,7 @@ struct CollectiveLocalDephasingModel <: Model
         # Kraus-like operator, trajectory-independent part
         M0 = (I - 1im * H * dt -
               0.25 * dt * kind * Nj * I - # The Id comes from the squares of sigmaz_j
-              (kcoll/2) * Jy2 * dt)
+              (Gamma/2) * Jy2 * dt)
 
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
@@ -131,9 +131,9 @@ end
 function measure_current(state::BlockDiagonalState, model::CollectiveLocalDephasingModel)
     @inline dW() = sqrt(model.params.dt) * randn() # Define the Wiener increment
     # Homodyne current (Eq. 35)
-    # dy = 2 sqrt(kcoll * eta) * tr(ρ * Jy) * dt + dW
+    # dy = 2 sqrt(Gamma * eta) * tr(ρ * Jy) * dt + dW
     mul!(state._tmp1, model.Jy, state.ρ)
-    return 2 * sqrt(model.params.kcoll * model.params.eta) * real(tr(state._tmp1)) * model.params.dt + dW()
+    return 2 * sqrt(model.params.Gamma * model.params.eta) * real(tr(state._tmp1)) * model.params.dt + dW()
 end
 
 function get_kraus(model::CollectiveLocalDephasingModel, dy::Real)
@@ -141,8 +141,8 @@ function get_kraus(model::CollectiveLocalDephasingModel, dy::Real)
     kraus = similar(model.M0)
     # Kraus operator Eq. (36)
     @inbounds for i in eachindex(kraus.blocks)
-        kraus.blocks[i] = model.M0.blocks[i] + sqrt(p.eta * p.kcoll) * model.Jy.blocks[i] * dy +
-        p.eta * (p.kcoll / 2) * model.Jy2.blocks[i] * (dy^2 - p.dt)
+        kraus.blocks[i] = model.M0.blocks[i] + sqrt(p.eta * p.Gamma) * model.Jy.blocks[i] * dy +
+        p.eta * (p.Gamma / 2) * model.Jy2.blocks[i] * (dy^2 - p.dt)
     end
     return kraus
 end
@@ -218,7 +218,7 @@ expectation_value!(state::State, op::AbstractArray) = real(tr(mul!(state._tmp1, 
 
 struct CollectiveDephasingModelParameters <: ModelParameters
     Nj::Integer
-    kcoll::Real
+    Gamma::Real
     kind::Real
     omega::Real
     eta::Real
@@ -229,7 +229,7 @@ struct CollectiveDephasingModelParameters <: ModelParameters
     _outsteps::Integer
 
     function CollectiveDephasingModelParameters(; Nj::Integer=1,
-                               kcoll::Real=1.0,
+                               Gamma::Real=1.0,
                                omega::Real=1.0,
                                eta::Real=1.0,
                                dt::Real=0.0001,
@@ -250,7 +250,7 @@ struct CollectiveDephasingModelParameters <: ModelParameters
         end
         #outpoints = Ntime
 
-        new(Nj, kcoll, 0.0, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
+        new(Nj, Gamma, 0.0, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
     end
 end
 
@@ -269,7 +269,7 @@ struct CollectiveDephasingModel <: Model
     function CollectiveDephasingModel(modelparams::CollectiveDephasingModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
         dt = modelparams.dt
-        kcoll = modelparams.kcoll
+        Gamma = modelparams.Gamma
         ω = modelparams.omega
         η = modelparams.eta
 
@@ -278,7 +278,7 @@ struct CollectiveDephasingModel <: Model
         (Jx, Jy, Jz) = map(x -> sparse(x[1:firstblock,1:firstblock]), jspin(Nj))
 
         # TOODO: Find better name
-        second_term = sqrt((1 - η) * dt * kcoll) * Jy
+        second_term = sqrt((1 - η) * dt * Gamma) * Jy
 
         Jx2 = Jx^2
         Jy2 = Jy^2
@@ -288,7 +288,7 @@ struct CollectiveDephasingModel <: Model
         dH = Jz
 
         # Kraus-like operator, trajectory-independent part
-        M0 = I - 1im * H * dt - (kcoll/2) * Jy2 * dt
+        M0 = I - 1im * H * dt - (Gamma/2) * Jy2 * dt
 
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
@@ -300,9 +300,9 @@ end
 function measure_current(state::FixedjState, model::CollectiveDephasingModel)
     @inline dW() = sqrt(model.params.dt) * randn() # Define the Wiener increment
     # Homodyne current (Eq. 35)
-    # dy = 2 sqrt(kcoll * eta) * tr(ρ * Jy) * dt + dW
+    # dy = 2 sqrt(Gamma * eta) * tr(ρ * Jy) * dt + dW
     mul!(state._tmp1, model.Jy, state.ρ)
-    return 2 * sqrt(model.params.kcoll * model.params.eta) * real(tr(state._tmp1)) * model.params.dt + dW()
+    return 2 * sqrt(model.params.Gamma * model.params.eta) * real(tr(state._tmp1)) * model.params.dt + dW()
 end
 
 function get_kraus(model::CollectiveDephasingModel, dy::Real)
@@ -310,8 +310,8 @@ function get_kraus(model::CollectiveDephasingModel, dy::Real)
     kraus = similar(model.M0)
 
     # Kraus operator Eq. (36)
-    kraus = (model.M0 + sqrt(p.eta * p.kcoll) * model.Jy * dy +
-            p.eta * (p.kcoll / 2) * model.Jy2 * (dy^2 - p.dt))
+    kraus = (model.M0 + sqrt(p.eta * p.Gamma) * model.Jy * dy +
+            p.eta * (p.Gamma / 2) * model.Jy2 * (dy^2 - p.dt))
 
     return kraus
 end

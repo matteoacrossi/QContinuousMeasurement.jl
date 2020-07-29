@@ -54,7 +54,7 @@ s = ArgParseSettings()
         help = "Independent noise rate k_ind"
         arg_type = Float64
         default = 1.0
-    "--kcoll"
+    "--Gamma"
         help = "Collective noise rate k_coll"
         arg_type = Float64
         default = 1.0
@@ -80,7 +80,7 @@ end
 args = parse_args(s)
 
 jobid = "SLURM_JOB_ID" in keys(ENV) ? jobid = ENV["SLURM_JOB_ID"] : ""
-filename = string("sim_$(args["Nj"])_$(args["Ntraj"])_$(args["Tfinal"])_$(args["dt"])_$(args["kind"])_$(args["kcoll"])_$(args["omega"])_$(args["eta"])_$(jobid)")
+filename = string("sim_$(args["Nj"])_$(args["Ntraj"])_$(args["Tfinal"])_$(args["dt"])_$(args["kind"])_$(args["Gamma"])_$(args["omega"])_$(args["eta"])_$(jobid)")
 
 let pkgstr = ""
     for (uuid, pkg) in Pkg.dependencies()
@@ -105,7 +105,7 @@ Ntraj = args["Ntraj"]
 
 modelparams = CollectiveLocalDephasingModelParameters(Nj=args["Nj"],
                               kind=args["kind"],
-                              kcoll=args["kcoll"],
+                              Gamma=args["Gamma"],
                               omega=args["omega"],
                               eta=args["eta"],
                               dt=args["dt"],
