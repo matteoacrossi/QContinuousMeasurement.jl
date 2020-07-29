@@ -6,11 +6,13 @@ using ProgressMeter
 function simulate_trajectory(model::Tm,
                              initial_state::Ts,
                              file_channel::Union{Channel,RemoteChannel,Nothing}=nothing,
-                             progress_channel::Union{Channel,RemoteChannel,Nothing}=nothing) where {Tm <: Model, Ts <:State}
+                             progress_channel::Union{Channel,RemoteChannel,Nothing}=nothing;
+                             callbacks=[]) where {Tm <: Model, Ts <:State}
 
     state = Ts(initial_state) # Copy the initial state
 
     jx = Array{Float64}(undef, length(get_time(model)))
+
     # Output variables
     jx = similar(jx)
     jy = similar(jx)
@@ -50,6 +52,11 @@ function simulate_trajectory(model::Tm,
 
             # Fisher of the strong final measurement
             FisherStrong[jto] = FI(state, model.measurement)
+
+            # apply any callbacks
+            isnothing(callbacks) || for cb in callbacks
+                cb(state, model)
+            end
 
             jto += 1
             isnothing(progress_channel) || put!(progress_channel, true)
@@ -126,7 +133,7 @@ function Eff_QFI_HD_Dicke(Nj::Int64, # Number of spins
             QFI=result[:,2] / Ntraj,
             jx=jx, jy=jy, jz=jz,
             Δjx=Δjx2, Δjy=Δjy2, Δjz=Δjz2,
-            xi2x=xi2x, xi2y=xi2y, xi2z=xi2z, FIstrong= result[:, 12] / Ntraj)
+            xi2x=xi2x, xi2y=xi2y, xi2z=xi2z, FIstrong=result[:, 12] / Ntraj)
 end
 
 """
