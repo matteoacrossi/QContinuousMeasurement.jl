@@ -225,6 +225,8 @@ struct CollectiveDephasingModel <: Model
     second_term::SparseMatrixCSC
     M0::SparseMatrixCSC
     dM::SparseMatrixCSC
+    measurement::Eigen
+
 
     function CollectiveDephasingModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
@@ -255,7 +257,9 @@ struct CollectiveDephasingModel <: Model
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
 
-        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_term, M0, dM)
+        measurement = eigen(Matrix(Jy))
+
+        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_term, M0, dM, measurement)
     end
 end
 
