@@ -222,7 +222,7 @@ struct CollectiveDephasingModel <: Model
     Jx2::SparseMatrixCSC
     Jy2::SparseMatrixCSC
     Jz2::SparseMatrixCSC
-    second_term::SparseMatrixCSC
+    second_terms::Array{SparseMatrixCSC}
     M0::SparseMatrixCSC
     dM::SparseMatrixCSC
     measurement::Eigen
@@ -242,7 +242,7 @@ struct CollectiveDephasingModel <: Model
         (Jx, Jy, Jz) = map(x -> sparse(x[1:firstblock, 1:firstblock]), jspin(Nj))
 
         # TOODO: Find better name
-        second_term = sqrt((1 - η) * dt * Gamma) * Jy + sqrt(dt * kcoll) * Jz
+        second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * kcoll) * Jz]
 
         Jx2 = Jx^2
         Jy2 = Jy^2
@@ -259,7 +259,7 @@ struct CollectiveDephasingModel <: Model
 
         measurement = eigen(Matrix(Jy))
 
-        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_term, M0, dM, measurement)
+        new(modelparams, Jx, Jy, Jz, Jx2, Jy2, Jz2, second_terms, M0, dM, measurement)
     end
 end
 
@@ -294,8 +294,10 @@ function updatestate!(state::FixedjState, model::CollectiveDephasingModel, dy::R
         mul!(state._new_ρ, M, state._tmp1)
 
         # Apply the second term of Eq. (34)
-        mul!(state._tmp1, state.ρ, model.second_term')
-        mul!(state._new_ρ, model.second_term, state._tmp1, 1., 1.)
+        for second_term in model.second_terms
+            mul!(state._tmp1, state.ρ, second_term')
+            mul!(state._new_ρ, second_term, state._tmp1, 1., 1.)
+        end
 
         zchop!(state._new_ρ) # Round off elements smaller than 1e-14
         tr_ρ = tr(state._new_ρ)
@@ -311,8 +313,14 @@ function updatestate!(state::FixedjState, model::CollectiveDephasingModel, dy::R
         mul!(state._tmp1, state.τ, M', 1., 1.)
 
         # second_term * τ
-        mul!(state._tmp2, model.second_term, state.τ)
-        mul!(state.τ, state._tmp2, model.second_term')
+        tmp3 = similar(state._tmp1)
+        fill!(state._tmp2, 0.0)
+        for second_term in model.second_terms
+            mul!(tmp3, second_term, state.τ)
+            mul!(state._tmp2, tmp3, second_term', 1., 1.)
+        end
+
+        copy!(state.τ, state._tmp2)
 
         # (Mpre * (Mpost * τ  +  dMpost * ρ) + second_term * τ )
         mul!(state.τ, M, state._tmp1, 1., 1.)
