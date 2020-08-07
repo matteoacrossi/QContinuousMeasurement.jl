@@ -242,7 +242,7 @@ struct CollectiveDephasingModel <: Model
         (Jx, Jy, Jz) = map(x -> sparse(x[1:firstblock, 1:firstblock]), jspin(Nj))
 
         # TOODO: Find better name
-        second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * kcoll) * Jz]
+        second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * 2 * kcoll) * Jz]
 
         Jx2 = Jx^2
         Jy2 = Jy^2
@@ -252,7 +252,7 @@ struct CollectiveDephasingModel <: Model
         dH = Jz
 
         # Kraus-like operator, trajectory-independent part
-        M0 = I - 1im * H * dt - (Gamma/2) * Jy2 * dt - (kcoll/2) * Jz2 * dt
+        M0 = I - 1im * H * dt - (Gamma/2) * Jy2 * dt - (kcoll) * Jz2 * dt
 
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
