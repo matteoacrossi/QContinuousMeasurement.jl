@@ -56,7 +56,7 @@ struct KrausOperator
     M::BlockDiagonal
 end
 
-struct CollectiveLocalDephasingModel <: Model
+struct LocalDephasingModel <: Model
     params::ModelParameters
     Jx::BlockDiagonal
     Jy::BlockDiagonal
@@ -70,7 +70,7 @@ struct CollectiveLocalDephasingModel <: Model
     dM::BlockDiagonal
     measurement::Array{Eigen}
 
-    function CollectiveLocalDephasingModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
+    function LocalDephasingModel(modelparams::ModelParameters, liouvillianfile::Union{String, Nothing}=nothing)
         Nj = modelparams.Nj
         dt = modelparams.dt
         Gamma = modelparams.Gamma
@@ -126,7 +126,7 @@ function initliouvillian(Nj::Integer, filename::String)
     return liouvillian + Nj*I
 end
 
-function measure_current(state::BlockDiagonalState, model::CollectiveLocalDephasingModel)
+function measure_current(state::BlockDiagonalState, model::LocalDephasingModel)
     @inline dW() = sqrt(model.params.dt) * randn() # Define the Wiener increment
     # Homodyne current (Eq. 35)
     # dy = 2 sqrt(Gamma * eta) * tr(ρ * Jy) * dt + dW
@@ -134,7 +134,7 @@ function measure_current(state::BlockDiagonalState, model::CollectiveLocalDephas
     return 2 * sqrt(model.params.Gamma * model.params.eta) * real(tr(state._tmp1)) * model.params.dt + dW()
 end
 
-function get_kraus(model::CollectiveLocalDephasingModel, dy::Real)
+function get_kraus(model::LocalDephasingModel, dy::Real)
     p = model.params
     kraus = similar(model.M0)
     # Kraus operator Eq. (36)
@@ -145,7 +145,7 @@ function get_kraus(model::CollectiveLocalDephasingModel, dy::Real)
     return kraus
 end
 
-function updatestate!(state::BlockDiagonalState, model::CollectiveLocalDephasingModel, dy::Real)
+function updatestate!(state::BlockDiagonalState, model::LocalDephasingModel, dy::Real)
     # Get Kraus operator for measured current dy
     @timeit_debug "get_kraus" M = get_kraus(model, dy)
 
@@ -241,7 +241,7 @@ struct CollectiveDephasingModel <: Model
         # Spin operators (only the first block)
         (Jx, Jy, Jz) = map(x -> sparse(x[1:firstblock, 1:firstblock]), jspin(Nj))
 
-        # TOODO: Find better name
+        # TODO: Find better name
         second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * 2 * kcoll) * Jz]
 
         Jx2 = Jx^2

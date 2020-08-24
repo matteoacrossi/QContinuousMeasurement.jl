@@ -117,7 +117,7 @@ modelparams = ModelParameters(Nj=args["Nj"],
 @info "Initializing model..."
 
 init_time = @elapsed begin
-@everywhere model = CollectiveLocalDephasingModel($modelparams, $args["liouvillianfile"])
+@everywhere model = LocalDephasingModel($modelparams, $args["liouvillianfile"])
 @everywhere initial_state = blockdiag_css($modelparams.Nj)
 end
 

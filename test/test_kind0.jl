@@ -3,8 +3,8 @@ using Test
 using Random
 
 @testset "kind=0" begin
-    params = QContinuousMeasurement.CollectiveLocalDephasingModelParameters(Nj = 2, kind = 0)
-    model = QContinuousMeasurement.CollectiveLocalDephasingModel(params)
+    params = QContinuousMeasurement.LocalDephasingModelParameters(Nj = 2, kind = 0)
+    model = QContinuousMeasurement.LocalDephasingModel(params)
     state = QContinuousMeasurement.blockdiag_css(params.Nj)
 
     params2 = QContinuousMeasurement.CollectiveDephasingModelParameters(Nj = 2)

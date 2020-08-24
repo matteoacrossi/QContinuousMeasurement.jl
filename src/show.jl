@@ -1,6 +1,6 @@
 using PrettyTables
 
-Base.show(io::IO, model::CollectiveLocalDephasingModel) = begin
+Base.show(io::IO, model::LocalDephasingModel) = begin
     type = typeof(model.Jx)
     m = Base.format_bytes(Base.summarysize(model))
     println(io, "Continuous monitoring model with $(model.params.Nj)-spin Dicke state\n")

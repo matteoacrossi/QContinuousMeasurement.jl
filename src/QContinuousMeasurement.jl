@@ -35,7 +35,7 @@ module QContinuousMeasurement
     export liouvillian, jspin, css
     export Model, ModelParameters, State
     export CollectiveDephasingModel, CollectiveDephasingModelParameters, FixedjState
-    export CollectiveLocalDephasingModel, CollectiveLocalDephasingModelParameters, BlockDiagonalState
+    export LocalDephasingModel, LocalDephasingModelParameters, BlockDiagonalState
     export updatestate!, measure_current, expectation_value!
     export get_time
     export InitializeModel, blockdiag_css, fixedj_css
