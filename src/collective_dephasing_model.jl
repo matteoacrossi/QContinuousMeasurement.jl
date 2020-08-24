@@ -30,6 +30,9 @@ struct CollectiveDephasingModel <: Model
         # Spin operators (only the first block)
         (Jx, Jy, Jz) = map(x -> sparse(x[1:firstblock, 1:firstblock]), jspin(Nj))
 
+        # NOTE! kcoll is multiplied by a factor 2 so that the effect on <Jx> is the same
+        # as in the local dephasing case
+
         # TODO: Find better name
         second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * 2 * kcoll) * Jz]
 
