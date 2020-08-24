@@ -1,3 +1,4 @@
+include("test_kind0.jl")
 include("test_operators.jl")
 include("test_show.jl")
 include("test_dicke.jl")
