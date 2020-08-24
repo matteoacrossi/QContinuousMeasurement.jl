@@ -44,6 +44,7 @@ module QContinuousMeasurement
     include("NoiseOperators.jl")
     include("States.jl")
     include("model.jl")
+    include("collective_dephasing_model.jl")
     include("Fisher.jl")
     include("Molmer_QFI.jl")
     include("Uncond_qfi_transverse.jl")
@@ -54,5 +55,4 @@ module QContinuousMeasurement
 
     include("utils.jl")
     include("show.jl") # Pretty formatting
-
 end
