@@ -212,3 +212,5 @@ function updatestate!(state::BlockDiagonalState, model::LocalDephasingModel, dy:
 end
 
 expectation_value!(state::State, op::AbstractArray) = real(tr(mul!(state._tmp1, op, density_matrix(state))))
+
+coherentspinstate(model::LocalDephasingModel) = blockdiag_css(model.params.Nj)

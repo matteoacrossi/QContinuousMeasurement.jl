@@ -135,3 +135,5 @@ function updatestate!(state::FixedjState, model::CollectiveDephasingModel, dy::R
     end
     return tr_ρ, tr_τ
 end
+
+coherentspinstate(model::CollectiveDephasingModel) = fixedj_css(model.params.Nj)

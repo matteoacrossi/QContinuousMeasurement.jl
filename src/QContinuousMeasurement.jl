@@ -38,7 +38,8 @@ module QContinuousMeasurement
     export LocalDephasingModel, LocalDephasingModelParameters, BlockDiagonalState
     export updatestate!, measure_current, expectation_value!
     export get_time
-    export InitializeModel, blockdiag_css, fixedj_css
+    export blockdiag_css, fixedj_css
+    export coherentspinstate
     export FileWriter
 
     include("NoiseOperators.jl")
