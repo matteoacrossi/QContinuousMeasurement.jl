@@ -97,27 +97,27 @@ function updatestate!(state::FixedjState, model::CollectiveDephasingModel, dy::R
     end
 
     # Non-allocating code for
-    # τ = (Mpre * (Mpost * τ  +  dMpost * ρ) + dMpre * Mpost * ρ +
-    #      second_term * τ )/ tr_ρ;
+    # τ = (M * (τ * M' + ρ * dM') + dM * ρ * M' +
+    #     ∑ second_term[i] * τ * second_term[i]') / tr_ρ;
     @timeit_debug "tau" begin
-        # (Mpost * τ  +  dMpost * ρ)
+
+        fill!(state._tmp2, 0.0)
+        # ∑ second_term[i] * τ * second_term[i]')
+        for second_term in model.second_terms
+            mul!(state._tmp1, second_term, state.τ)
+            mul!(state._tmp2, state._tmp1, second_term', 1., 1.)
+        end
+
+        # (τ * M' + ρ * dM')
         mul!(state._tmp1, state.ρ, model.dM')
         mul!(state._tmp1, state.τ, M', 1., 1.)
 
-        # second_term * τ
-        tmp3 = similar(state._tmp1)
-        fill!(state._tmp2, 0.0)
-        for second_term in model.second_terms
-            mul!(tmp3, second_term, state.τ)
-            mul!(state._tmp2, tmp3, second_term', 1., 1.)
-        end
-
         copy!(state.τ, state._tmp2)
 
-        # (Mpre * (Mpost * τ  +  dMpost * ρ) + second_term * τ )
+        #  (M * (τ * M' + ρ * dM')
         mul!(state.τ, M, state._tmp1, 1., 1.)
 
-        #  ... + dMpre * Mpost * ρ
+        #  ... + dM * ρ * M'
         mul!(state._tmp1, state.ρ, M')
         mul!(state.τ, model.dM, state._tmp1, 1., 1.)
 
