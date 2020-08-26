@@ -35,6 +35,19 @@ function QFI(ρ, dρ; abstol = 1e-5)
     return res
 end
 
+"""
+    QFI!(ρ, dρ [, abstol])
+
+Numerically evaluate the quantum Fisher information for the matrix ρ given its derivative dρ wrt the parameter.
+Can overwrite ρ.
+
+This function is the implementation of Eq. (13) in Paris, Int. J. Quantum Inform. 7, 125 (2009).
+
+# Arguments
+    * `ρ`:  Density matrix (gets overwritten)
+    * `dhro`: Derivative wrt the parameter to be estimated
+    * `abstol = 1e-5`: tolerance in the denominator of the formula
+"""
 function QFI!(ρ, dρ; abstol = 1e-5)
     # Get the eigenvalues and eigenvectors of the density matrix
     # We enforce its Hermiticity so that the algorithm is more efficient and returns real values
@@ -55,20 +68,6 @@ function QFI!(ρ, dρ; abstol = 1e-5)
     return res
 end
 
-"""
-    QFI(ρ::BlockDiagonal, dρ::BlockDiagonal, N [, abstol])
-
-Numerically evaluate the quantum Fisher information for the matrix ρ given its derivative dρ wrt the parameter,
-for the special case of a block-diagonal matrix in the Dicke basis.
-
-This function is the implementation of Eq. (13) in Paris, Int. J. Quantum Inform. 7, 125 (2009).
-
-# Arguments
-    * `ρ`:  Density matrix
-    * `dhro`: Derivative wrt the parameter to be estimated
-    * `N`: number of spins
-    * `abstol = 1e-5`: tolerance in the denominator of the formula
-"""
 function QFI(ρ::BlockDiagonal, dρ::BlockDiagonal; abstol = 1e-5)
     qfi = 0.
     for i in 1:nblocks(ρ)
@@ -85,15 +84,46 @@ function QFI!(ρ::BlockDiagonal, dρ::BlockDiagonal; abstol = 1e-5)
     return qfi
 end
 
+"""
+    QFI(state::State, [, abstol])
+
+Numerically evaluate the quantum Fisher information for the State state.
+
+This function is the implementation of Eq. (13) in Paris, Int. J. Quantum Inform. 7, 125 (2009).
+
+# Arguments
+    * `state`: A State object
+    * `abstol = 1e-5`: tolerance in the denominator of the formula
+"""
 function QFI(state::State, abstol = 1e-5)
     QFI(state.ρ, state.dρ)
 end
 
+"""
+    QFI!(state::State, [, abstol])
+
+Numerically evaluate the quantum Fisher information for the State state,
+overwriting one of its temporary variables.
+
+This function is the implementation of Eq. (13) in Paris, Int. J. Quantum Inform. 7, 125 (2009).
+
+# Arguments
+    * `state`: A State object
+    * `abstol = 1e-5`: tolerance in the denominator of the formula
+"""
 function QFI!(state::State, abstol = 1e-5)
     copy!(state._tmp1, state.ρ)
     QFI!(state._tmp1, state.dρ)
 end
 
+"""
+    FI(ρ, dρ, op, [, tol])
+
+Evaluates the Fisher information for the measurement operator op, for density matrix ρ, with
+derivative dρ with respect to the parameter.
+
+tol gives the tolerance to treat the denominator as 0 (and avoid NaNs). Default is `tol=1e-10`.
+"""
 function FI(ρ::BlockDiagonal, dρ::BlockDiagonal, op::BlockDiagonal)
     ed = eigen(op)
     return FI(ρ, dρ, ed)
