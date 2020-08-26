@@ -9,7 +9,7 @@ module QContinuousMeasurement
     const pystuff = PyNULL()
 
     function __init__()
-        # The commands below import the modules, and make sure that they Arguments
+        # The commands below import the modules, and make sure that they are
         # installed using Conda.jl
         copy!(qutip, pyimport_conda("matplotlib", "matplotlib"))
         copy!(qutip, pyimport_conda("qutip", "qutip", "conda-forge"))
@@ -26,9 +26,7 @@ module QContinuousMeasurement
     using SparseArrays
     using LinearAlgebra
 
-    export Molmer_QFI_GHZ, Molmer_qfi_transverse, uncond_QFI_transverse
     export QFI, QFI!, squeezing_param, FI
-    export Unconditional_QFI, Unconditional_QFI_Dicke
     export Eff_QFI_HD
     export Eff_QFI_HD_Dicke, Eff_QFI_HD_Dicke_0
     export simulate_trajectory
@@ -36,7 +34,6 @@ module QContinuousMeasurement
     export Model, ModelParameters, State
     export CollectiveDephasingModel, CollectiveDephasingModelParameters, FixedjState
     export LocalDephasingModel, LocalDephasingModelParameters, BlockDiagonalState
-    export updatestate!, measure_current, expectation_value!
     export get_time
     export blockdiag_css, fixedj_css
     export coherentspinstate
@@ -47,8 +44,6 @@ module QContinuousMeasurement
     include("model.jl")
     include("collective_dephasing_model.jl")
     include("Fisher.jl")
-    include("Molmer_QFI.jl")
-    include("Uncond_qfi_transverse.jl")
 
     include("filewriter.jl")
     include("Eff_QFI_HD_Dicke.jl")
