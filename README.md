@@ -35,11 +35,11 @@ params = ModelParameters(Nj=3,
                          outpoints=200)
 ```
 
-Then, we can initialize a `Model` object and a `State`.
+Then, we can initialize a `LocalDephasingModel` object and a `State` object (in this case, a coherent spin state).
 
 ```julia
-model = Model(params)
-initial_state = blockdiag_css(params.Nj)
+model = LocalDephasingModel(params)
+initial_state = coherentspinstate(model)
 ```
 
 To simulate one trajectory run
@@ -54,6 +54,9 @@ To plot the FI for the trajectory, use
 using Plots
 plot(get_time(model), result.FI)
 ```
+
+To run simulations with large numbers of trajectories, and for saving to `.h5`,
+use the `script/simulate.jl` script. The script can be modified as needed.
 
 The old interface of ContinuousMeasurementFI still works for calculating averages.
 
