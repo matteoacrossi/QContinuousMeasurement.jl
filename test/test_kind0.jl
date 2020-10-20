@@ -3,13 +3,12 @@ using Test
 using Random
 
 @testset "kind=0" begin
-    params = QContinuousMeasurement.CollectiveLocalDephasingModelParameters(Nj = 2, kind = 0)
-    model = QContinuousMeasurement.CollectiveLocalDephasingModel(params)
-    state = QContinuousMeasurement.blockdiag_css(params.Nj)
+    params = ModelParameters(Nj=2, kind=0, kcoll=0)
+    model = LocalDephasingModel(params)
+    state = blockdiag_css(params.Nj)
 
-    params2 = QContinuousMeasurement.CollectiveDephasingModelParameters(Nj = 2)
-    model2 = QContinuousMeasurement.CollectiveDephasingModel(params2)
-    state2 = QContinuousMeasurement.fixedj_css(params2.Nj)
+    model2 = CollectiveDephasingModel(params)
+    state2 = fixedj_css(params.Nj)
 
     seed = 1
 

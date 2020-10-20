@@ -1,12 +1,13 @@
 name = "QContinuousMeasurement"
 uuid = "9294a754-7eef-11ea-bc55-0242ac130003"
 authors = ["Matteo Rossi <teo.red90@gmail.com>"]
-version = "0.2.0"
+version = "0.2.2"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 BlockDiagonalMatrices = "0a1fb501-61f7-11e9-3c65-f5ef3456f9f0"
 ClusterManagers = "34f1f09b-3a8b-5176-ab39-66d58a4d544e"
+Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

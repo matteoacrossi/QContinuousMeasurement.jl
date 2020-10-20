@@ -28,7 +28,7 @@ end
 
 outsteps = Int(round(Tfinal / dt / outpoints, digits=3))
 
-modelparams = ModelParameters(Nj=40, kind=1.0, kcoll=1.0, omega=0.01, Tfinal=1.0, dt=dt)
+modelparams = ModelParameters(Nj=40, kind=1.0, Gamma=1.0, omega=0.01, Tfinal=1.0, dt=dt)
 
 Ntime = Int(floor(Tfinal/dt)) # Number of timesteps
 t = (1 : Ntime) * dt

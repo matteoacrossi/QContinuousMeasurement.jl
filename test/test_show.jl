@@ -2,11 +2,11 @@ using QContinuousMeasurement
 using Test
 
 @testset "Pretty printing" begin
-    @testset "CollectiveLocalDephasingModel" begin
+    @testset "LocalDephasingModel" begin
         Nj = 2
-        modelparams = CollectiveLocalDephasingModelParameters(Nj=Nj)
+        modelparams = ModelParameters(Nj=Nj)
 
-        model = CollectiveLocalDephasingModel(modelparams)
+        model = LocalDephasingModel(modelparams)
         initial_state = blockdiag_css(Nj)
 
         println(model)

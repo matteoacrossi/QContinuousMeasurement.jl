@@ -23,7 +23,7 @@ struct FileWriter
         end
 
         datasets = Dict()
-        #for quantity in ("FI", "QFI", "Jx", "Jy", "Jz", "Δjx", "Δjy", "Δjz", "xi2x", "xi2y", "xi2z")
+        #for quantity in ("FI", "QFI", "Jx", "Jy", "Jz", "Δjx", "Δjy", "Δjz", "xi2x", "xi2y", "xi2z", "FIstrong")
         for quantity in quantities
             ds = d_create(fid, quantity, Float64, ((outpoints, total_trajectories), (outpoints, -1)), "chunk", (outpoints, 1))
             datasets[quantity] = ds
