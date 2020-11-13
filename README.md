@@ -1,6 +1,6 @@
 # QContinuousMeasurement
-
 [![DOI](https://zenodo.org/badge/255846594.svg)](https://zenodo.org/badge/latestdoi/255846594)
+[![Article](https://img.shields.io/badge/Article-Phys.%20Rev.%20Lett.%20125%2C%20200505%20(2020)-%23517e66)](https://doi.org/10.1103/PhysRevLett.125.200505)
 [![arXiv](https://img.shields.io/badge/arXiv-2006.08974-b31b1b.svg)](https://arxiv.org/abs/2006.08974)
 
 ## Installation
@@ -99,9 +99,6 @@ run the following before starting Julia:
 ## Citation
 This code has been developed for the following preprint:
 
-[Matteo A. C. Rossi, Francesco Albarelli, Dario Tamascelli, Marco G. Genoni, "Noisy quantum metrology enhanced by continuous nondemolition measurement", arXiv:2006.08974 (2020)](https://arxiv.org/abs/2006.08974)
+[Matteo A. C. Rossi, Francesco Albarelli, Dario Tamascelli, Marco G. Genoni, "Noisy quantum metrology enhanced by continuous nondemolition measurement", Phys. Rev. Lett. 125, 200505 (2020)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.125.200505)
 
 Please cite it if you are using this code.
-
-
-
