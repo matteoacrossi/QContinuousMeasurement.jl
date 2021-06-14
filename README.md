@@ -10,7 +10,7 @@ Requires Julia v1.0.
 From the Julia REPL, open the package manager with the key `]` and run the command
 
 ```julia
-pkg> add https://github.com/matteoacrossi/QContinuousMeasurement#dicke
+pkg> add https://github.com/matteoacrossi/QContinuousMeasurement.jl
 ```
 
 This will install all the dependencies, including a Python environment with [QuTiP](http://www.qutip.org).
