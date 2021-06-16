@@ -2,7 +2,7 @@ using HDF5
 using Distributed
 
 struct FileWriter
-    fid::HDF5File
+    fid::HDF5.File
     channel::Union{Channel,RemoteChannel}
     total_trajectories::Int64
     timevector::Array{Float64,1}
@@ -16,16 +16,17 @@ struct FileWriter
         fid["t"] = timevector
         outpoints = length(timevector)
 
-        paramdict = Dict(string(fn)=>getfield(params, fn) for fn ∈ fieldnames(typeof(params)))
+        paramdict = Dict(string(fn) => getfield(params, fn) for fn ∈ fieldnames(typeof(params)))
 
         for (par, val) in paramdict
-            attrs(fid)[par] = val
+            attributes(fid)[par] = val
         end
 
         datasets = Dict()
-        #for quantity in ("FI", "QFI", "Jx", "Jy", "Jz", "Δjx", "Δjy", "Δjz", "xi2x", "xi2y", "xi2z", "FIstrong")
+        # for quantity in ("FI", "QFI", "Jx", "Jy", "Jz", "Δjx", "Δjy", "Δjz", "xi2x", "xi2y", "xi2z", "FIstrong")
         for quantity in quantities
-            ds = d_create(fid, quantity, Float64, ((outpoints, total_trajectories), (outpoints, -1)), "chunk", (outpoints, 1))
+            # ds = d_create(fid, quantity, Float64, ((outpoints, total_trajectories), (outpoints, -1)), "chunk", (outpoints, 1))
+            ds = create_dataset(fid, quantity, datatype(Float64), dataspace(outpoints, total_trajectories), chunk=(outpoints, 1))
             datasets[quantity] = ds
         end
 
@@ -38,7 +39,7 @@ end
 
 function writer_task(fid, datasets, channel)
     counter = 1
-    attrs(fid)["stored_traj"] = 0
+    attributes(fid)["stored_traj"] = 0
     @info "Writer ready!"
     while true
         try
@@ -56,7 +57,7 @@ function writer_task(fid, datasets, channel)
             end
             @debug "Entry written to $(fid)"
             counter += 1
-            write(attrs(fid)["stored_traj"], counter - 1)
+            write(attributes(fid)["stored_traj"], counter - 1)
             flush(fid)
 
         catch InvalidStateException

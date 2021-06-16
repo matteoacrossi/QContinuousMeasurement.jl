@@ -3,7 +3,7 @@ using QContinuousMeasurement
 using HDF5
 using Random
 
-typedict(x) = Dict(string(fn)=>getfield(x, fn) for fn ∈ fieldnames(typeof(x)))
+typedict(x) = Dict(string(fn) => getfield(x, fn) for fn ∈ fieldnames(typeof(x)))
 
 # Opens the FileWriter
 @testset "FileWriter" begin
@@ -23,12 +23,12 @@ typedict(x) = Dict(string(fn)=>getfield(x, fn) for fn ∈ fieldnames(typeof(x)))
 
     writer = FileWriter(filename, params, Ntraj, ["FI", "QFI", "xi2y", "something", "FIstrong"])
 
-    for i=1:Ntraj
-        tuple = (FI=FI[:, i],
-                 QFI=QFI[:, i],
-                 xi2y=xi2y[:, i],
-                 FIstrong=FIstrong[:, i],
-                 extrafield=xi2y[:, i]) # This field should be ignored
+    for i = 1:Ntraj
+        tuple = (FI = FI[:, i],
+                 QFI = QFI[:, i],
+                 xi2y = xi2y[:, i],
+                 FIstrong = FIstrong[:, i],
+                 extrafield = xi2y[:, i]) # This field should be ignored
         put!(writer, tuple)
     end
 
@@ -42,7 +42,7 @@ typedict(x) = Dict(string(fn)=>getfield(x, fn) for fn ∈ fieldnames(typeof(x)))
         @test read(fid["QFI"]) == QFI
         @test read(fid["xi2y"]) == xi2y
         @test iszero(read(fid["something"]))
-        @test read(attrs(fid)["stored_traj"]) == Ntraj
+        @test read(attributes(fid)["stored_traj"]) == Ntraj
         close(fid)
     end
     @testset "attrs" begin
