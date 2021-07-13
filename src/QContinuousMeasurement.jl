@@ -42,6 +42,7 @@ module QContinuousMeasurement
     include("NoiseOperators.jl")
     include("States.jl")
     include("model.jl")
+    include("local_dephasing_model.jl")
     include("collective_dephasing_model.jl")
     include("Fisher.jl")
 
