@@ -97,7 +97,7 @@ run the following before starting Julia:
     export LD_PRELOAD=$HOME/.julia/conda/3/lib/libstdc++.so
     
 ## Citation
-This code has been developed for the following preprint:
+This code has been developed for the following paper:
 
 [Matteo A. C. Rossi, Francesco Albarelli, Dario Tamascelli, Marco G. Genoni, "Noisy quantum metrology enhanced by continuous nondemolition measurement", Phys. Rev. Lett. 125, 200505 (2020)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.125.200505)
 
