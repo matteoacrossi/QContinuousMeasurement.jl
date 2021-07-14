@@ -61,7 +61,7 @@ end
     get_time(m::Model) = get_time(m.params)
 
 function initliouvillian(Nj::Integer)
-sys = piqs.Dicke(Nj)
+    sys = piqs.Dicke(Nj)
     sys.dephasing = 4.
 
     liouvillian = tosparse(sys.liouvillian())

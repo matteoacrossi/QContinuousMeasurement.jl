@@ -5,11 +5,12 @@
 
 ## Installation
 
-Requires Julia v1.0.
+Requires Julia v1.6.
 
-From the Julia REPL, open the package manager with the key `]` and run the command
+From the Julia REPL, open the package manager with the key `]` and run the commands
 
 ```julia
+pkg> add https://github.com/matteoacrossi/BlockDiagonalMatrices.jl
 pkg> add https://github.com/matteoacrossi/QContinuousMeasurement.jl
 ```
 
