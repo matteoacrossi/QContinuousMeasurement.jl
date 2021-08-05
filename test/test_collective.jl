@@ -14,7 +14,7 @@ using Random
         model = LocalDephasingModel(params)
         state = blockdiag_css(params.Nj)
 
-        params_coll = ModelParameters(Nj=1, kind=0, kcoll=1, Gamma=1)
+        params_coll = ModelParameters(Nj=1, kind=0, kcoll=2, Gamma=1)
         model_coll = CollectiveDephasingModel(params_coll)
         state_coll = fixedj_css(params_coll.Nj)
 
@@ -41,7 +41,7 @@ using Random
         model = LocalDephasingModel(params)
         state = blockdiag_css(params.Nj)
 
-        params_coll = ModelParameters(Nj=5, kind=0, kcoll=1, Gamma=0)
+        params_coll = ModelParameters(Nj=5, kind=0, kcoll=2, Gamma=0)
         model_coll = CollectiveDephasingModel(params_coll)
         state_coll = fixedj_css(params_coll.Nj)
 
@@ -54,7 +54,7 @@ using Random
         res_coll = simulate_trajectory(model_coll, state_coll)
 
         @testset "Jx" begin
-            @test getfield(res, :Jx) ≈ getfield(res_coll, :Jx) rtol=10*params.dt
+            @test getfield(res, :Jx) ≈ getfield(res_coll, :Jx) rtol = 10 * params.dt
         end
     end
 end
