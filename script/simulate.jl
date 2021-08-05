@@ -1,5 +1,5 @@
 using Distributed
-#using ClusterManagers
+# using ClusterManagers
 using Logging
 
 # logger = SimpleLogger(stdout, Logging.Debug)
@@ -54,8 +54,12 @@ s = ArgParseSettings()
         help = "Independent noise rate k_ind"
         arg_type = Float64
         default = 1.0
-    "--Gamma"
+    "--kcoll"
         help = "Collective noise rate k_coll"
+        arg_type = Float64
+        default = 0.0
+    "--Gamma"
+        help = "Monitoring noise rate Gamma"
         arg_type = Float64
         default = 1.0
     "--omega"
@@ -70,17 +74,22 @@ s = ArgParseSettings()
         help = "Number of output points"
         arg_type = Int64
         default = 200
-
     "--liouvillianfile"
         help = "npz file with the liovuillian data"
         arg_type = String
         default = nothing
+    "--outdir"
+        help = "Output directory"
+        arg_type = String
+        default = "."
 end
 
 args = parse_args(s)
 
 jobid = "SLURM_JOB_ID" in keys(ENV) ? jobid = ENV["SLURM_JOB_ID"] : ""
-filename = string("sim_$(args["Nj"])_$(args["Ntraj"])_$(args["Tfinal"])_$(args["dt"])_$(args["kind"])_$(args["Gamma"])_$(args["omega"])_$(args["eta"])_$(jobid)")
+filename = string("$(args["outdir"])/sim_Nj_$(args["Nj"])_Ntraj_$(args["Ntraj"])_Tf_$(args["Tfinal"])_" *
+            "dt_$(args["dt"])_kind_$(args["kind"])_kcoll_$(args["kcoll"])_Gamma_$(args["Gamma"])_" *
+            "omega_$(args["omega"])_eta_$(args["eta"])_$(jobid)")
 
 let pkgstr = ""
     for (uuid, pkg) in Pkg.dependencies()
@@ -117,17 +126,24 @@ modelparams = ModelParameters(Nj=args["Nj"],
 @info "Initializing model..."
 
 init_time = @elapsed begin
-@everywhere model = LocalDephasingModel($modelparams, $args["liouvillianfile"])
-@everywhere initial_state = blockdiag_css($modelparams.Nj)
+    if args["kind"] == 0.0
+        @info "kind = 0, using collective state"
+        @everywhere model = CollectiveDephasingModel($modelparams)
+        @everywhere initial_state = fixedj_css($modelparams.Nj)
+    else
+        @assert args["kcoll"] == 0.0
+        @everywhere model = LocalDephasingModel($modelparams, $args["liouvillianfile"])
+        @everywhere initial_state = blockdiag_css($modelparams.Nj)
+    end
 end
 
-#println(model)
-#println(initial_state)
+# println(model)
+# println(initial_state)
 
 @info "Done in $init_time seconds..."
 
 # Opens the FileWriter
-writer = FileWriter("$filename.h5", modelparams, args["Ntraj"], ["FI", "QFI", "FIstrong", "xi2y"])
+writer = FileWriter("$filename.h5", modelparams, args["Ntraj"], ["FI", "QFI", "FIstrong", "xi2y", "Jx"])
 
 progress_channel = RemoteChannel(() -> Channel{Bool}(1000))
 
@@ -181,7 +197,7 @@ function prepare_batches(n, batch_size)
         return [batch_size for i = 1:(n ÷ batch_size)]
     else
         m = Int(floor(n / batch_size))
-        vcat([[batch_size for i=1:m], n - (m * batch_size)]...)
+        vcat([[batch_size for i = 1:m], n - (m * batch_size)]...)
     end
 end
 
