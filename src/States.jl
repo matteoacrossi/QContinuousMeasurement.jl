@@ -30,7 +30,7 @@ end
 
 function blockdiag_sss(Nj, mu::Real, dense=true)
     ρ0 = blockdiagonal(spin_squeezed_state(Nj, mu), dense=dense)
-    BlockDiagonalState(ρ0)
+    return BlockDiagonalState(ρ0)
 end
 
 struct FixedjState <: State
@@ -52,6 +52,12 @@ function fixedj_css(Nj::Int64)
     state = css(Nj)
     firstblock = block_sizes(Nj)[1]
     return FixedjState(Matrix(state[1:firstblock, 1:firstblock]))
+end
+
+function fixedj_sss(Nj, mu::Real, dense=true)
+    ρ0 = spin_squeezed_state(Nj, mu)
+    firstblock = block_sizes(Nj)[1]
+    return FixedjState(Matrix(ρ0[1:firstblock, 1:firstblock]))
 end
 
 function spin_squeezed_state(Nj::Int64, mu::Real, nu::Real)
