@@ -147,7 +147,7 @@ writer = FileWriter("$filename.h5", modelparams, args["Ntraj"], ["FI", "QFI", "F
 
 progress_channel = RemoteChannel(() -> Channel{Bool}(1000))
 
-p = Progress(Ntraj * length(get_time(model)), barglyphs=BarGlyphs("[=> ]"), barlen=10)
+p = Progress(Ntraj * length(get_time(model)), barglyphs=BarGlyphs("[=> ]"), dt=60, barlen=10)
 
 @async while take!(progress_channel)
     next!(p)
