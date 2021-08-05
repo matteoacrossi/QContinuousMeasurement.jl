@@ -9,6 +9,17 @@ function squeezing_param(N, ΔJ1, J2m, J3m)
     return (J2m .^2 + J3m .^2) ./ (N * ΔJ1)
 end
 
+function squeezing_param(rho::QContinuousMeasurement.State)
+    Nj = nspins(rho)
+    (Jx, Jy, Jz) = jspin(Nj)
+    Jy2 = Jy ^ 2
+    Jzm = expectation_value!(rho, Jz)
+    Jxm =  expectation_value!(rho, Jx)
+    Jym =  expectation_value!(rho, Jy)
+    Jy2m = expectation_value!(rho, Jy2)
+    return (Jzm .^2 + Jxm .^2) ./ (Nj * (Jy2m - Jym .^2))
+end
+
 """
     density(M)
 
