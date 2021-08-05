@@ -30,11 +30,8 @@ struct CollectiveDephasingModel <: Model
         # Spin operators (only the first block)
         (Jx, Jy, Jz) = map(x -> sparse(x[1:firstblock, 1:firstblock]), jspin(Nj))
 
-        # NOTE! kcoll is multiplied by a factor 2 so that the effect on <Jx> is the same
-        # as in the local dephasing case
-
         # TODO: Find better name
-        second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * 2 * kcoll) * Jz]
+        second_terms = [sqrt((1 - η) * dt * Gamma) * Jy, sqrt(dt * kcoll) * Jz]
 
         Jx2 = Jx^2
         Jy2 = Jy^2
@@ -44,7 +41,7 @@ struct CollectiveDephasingModel <: Model
         dH = Jz
 
         # Kraus-like operator, trajectory-independent part
-        M0 = I - 1im * H * dt - (Gamma/2) * Jy2 * dt - (kcoll) * Jz2 * dt
+        M0 = I - 1im * H * dt - (Gamma/2) * Jy2 * dt - (kcoll/2) * Jz2 * dt
 
         # Derivative of the Kraus-like operator wrt to ω
         dM = -1im * dH * dt
