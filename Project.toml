@@ -1,7 +1,7 @@
 name = "QContinuousMeasurement"
 uuid = "9294a754-7eef-11ea-bc55-0242ac130003"
 authors = ["Matteo Rossi <teo.red90@gmail.com>"]
-version = "0.6.0"
+version = "0.7.0"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
