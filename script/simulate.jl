@@ -132,7 +132,6 @@ modelparams = ModelParameters(Nj=args["Nj"],
 
 init_time = @elapsed begin
     if args["kind"] == 0.0
-        @info "kind = 0, using collective state"
         @everywhere model = CollectiveDephasingModel($modelparams)
         @everywhere initial_state = fixedj_sss($modelparams.Nj, $modelparams.mu)
     else
@@ -142,6 +141,8 @@ init_time = @elapsed begin
     end
 end
 
+xi = squeezing_param(initial_state)
+@info "Initial spin squeezing $(xi)"
 # println(model)
 # println(initial_state)
 
