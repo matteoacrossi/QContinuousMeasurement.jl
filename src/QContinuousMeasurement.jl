@@ -35,7 +35,7 @@ module QContinuousMeasurement
     export CollectiveDephasingModel, CollectiveDephasingModelParameters, FixedjState
     export LocalDephasingModel, LocalDephasingModelParameters, BlockDiagonalState
     export get_time
-    export blockdiag_css, fixedj_css, blockdiag_sss
+    export blockdiag_css, fixedj_css, blockdiag_sss, fixedj_sss
     export coherentspinstate
     export FileWriter
 
