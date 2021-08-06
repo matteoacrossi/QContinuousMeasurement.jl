@@ -11,6 +11,28 @@ function squeezing_param(N, ΔJ1, J2m, J3m)
     return (J2m.^2 + J3m.^2) ./ (N * ΔJ1)
 end
 
+
+function squeezing_param(rho::QContinuousMeasurement.FixedjState)
+    """
+        ξ2 = squeezing_param(rho)
+
+    Returns the squeezing parameter defined, e.g., as
+    the inverse of Eq. (1) in Phys. Rev. A 65, 061801 (2002).
+
+    The state is squeezed if greater than one.
+    """
+    Nj = nspins(rho)
+    firstblock = block_sizes(Nj)[1]
+    (Jx, Jy, Jz) =  map(x -> sparse(x[1:firstblock, 1:firstblock]), jspin(Nj))
+
+    Jy2 = Jy^2
+    Jzm = expectation_value!(rho, Jz)
+    Jxm =  expectation_value!(rho, Jx)
+    Jym =  expectation_value!(rho, Jy)
+    Jy2m = expectation_value!(rho, Jy2)
+    return (Jzm.^2 + Jxm.^2) ./ (Nj * (Jy2m - Jym.^2))
+end
+
 function squeezing_param(rho::QContinuousMeasurement.State)
     """
         ξ2 = squeezing_param(rho)

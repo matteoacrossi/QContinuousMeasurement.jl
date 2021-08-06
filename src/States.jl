@@ -16,7 +16,7 @@ struct BlockDiagonalState <: State
     BlockDiagonalState(ρ::BlockDiagonal) = new(ρ, zero(ρ), zero(ρ), similar(ρ), similar(ρ), similar(ρ))
 end
 
-density_matrix(state::BlockDiagonalState) = state.ρ
+density_matrix(state::State) = state.ρ
 
 nspins(state::BlockDiagonalState) = nspins(size(density_matrix(state), 1))
 
@@ -46,6 +46,9 @@ struct FixedjState <: State
 end
 
 density_matrix(state::FixedjState) = state.ρ
+
+nspins(state::FixedjState) = size(density_matrix(state), 1) - 1
+
 FixedjState(state::FixedjState) = FixedjState(copy(density_matrix(state)))
 
 function fixedj_css(Nj::Int64)

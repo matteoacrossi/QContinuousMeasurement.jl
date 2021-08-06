@@ -34,4 +34,17 @@ end
 
     sq_state = blockdiag_sss(params.Nj, 0.1)
     @test squeezing_param(sq_state) > 1.0
+
+    params = ModelParameters(Nj=2, kind=0, kcoll=0)
+    model = CollectiveDephasingModel(params)
+    state = fixedj_sss(params.Nj, 0.0)
+    css_state = fixedj_css(params.Nj)
+
+    @test state.ρ ≈ css_state.ρ
+    @test squeezing_param(state) ≈ 1.0
+    @test state isa FixedjState
+
+    sq_state_f = fixedj_sss(params.Nj, 0.1)
+    @test squeezing_param(sq_state_f) > 1.0
+    @test squeezing_param(sq_state) ≈ squeezing_param(sq_state_f)
 end
