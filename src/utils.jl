@@ -3,21 +3,31 @@ function squeezing_param(N, ΔJ1, J2m, J3m)
     """
         ξ2 = squeezing_param(N, ΔJ1, J2m, J3m)
 
-    Returns the squeezing parameter defined, e.g.,
-    in Phys. Rev. A 65, 061801 (2002), Eq. (1).
+    Returns the squeezing parameter defined, e.g., as
+    the inverse of Eq. (1) in Phys. Rev. A 65, 061801 (2002).
+
+    The state is squeezed if greater than one.
     """
-    return (J2m .^2 + J3m .^2) ./ (N * ΔJ1)
+    return (J2m.^2 + J3m.^2) ./ (N * ΔJ1)
 end
 
 function squeezing_param(rho::QContinuousMeasurement.State)
+    """
+        ξ2 = squeezing_param(rho)
+
+    Returns the squeezing parameter defined, e.g., as
+    the inverse of Eq. (1) in Phys. Rev. A 65, 061801 (2002).
+
+    The state is squeezed if greater than one.
+    """
     Nj = nspins(rho)
     (Jx, Jy, Jz) = jspin(Nj)
-    Jy2 = Jy ^ 2
+    Jy2 = Jy^2
     Jzm = expectation_value!(rho, Jz)
     Jxm =  expectation_value!(rho, Jx)
     Jym =  expectation_value!(rho, Jy)
     Jy2m = expectation_value!(rho, Jy2)
-    return (Jzm .^2 + Jxm .^2) ./ (Nj * (Jy2m - Jym .^2))
+    return (Jzm.^2 + Jxm.^2) ./ (Nj * (Jy2m - Jym.^2))
 end
 
 """
@@ -30,16 +40,16 @@ function density(s::SparseMatrixCSC)
 end
 
 function Unconditional_QFI_Dicke(Nj::Int64, Tfinal::Real, dt::Real;
-    κ::Real = 1.,                    # Independent noise strength
-    κcoll::Real = 1.,                # Collective noise strength
-    ω::Real = 0.0                   # Frequency of the Hamiltonian
+    κ::Real=1.,                    # Independent noise strength
+    κcoll::Real=1.,                # Collective noise strength
+    ω::Real=0.0                   # Frequency of the Hamiltonian
     )
-    return Eff_QFI_HD_Dicke(Nj, 1, Tfinal, dt; κ=κ, κcoll = κcoll, ω=ω, η=0.0)
+    return Eff_QFI_HD_Dicke(Nj, 1, Tfinal, dt; κ=κ, κcoll=κcoll, ω=ω, η=0.0)
 end
 
 # Specialize zchop! to BlockDiagonal
 function ZChop.zchop!(A::BlockDiagonal)
     for b in blocks(A)
-         zchop!(b)
-     end
- end
+        zchop!(b)
+    end
+end
