@@ -70,6 +70,10 @@ s = ArgParseSettings()
         help = "Measurement efficiency"
         arg_type = Float64
         default = 1.0
+    "--mu"
+        help = "Initial squeezing parameter"
+        arg_type = Float64
+        default = 0.0
     "--outpoints"
         help = "Number of output points"
         arg_type = Int64
@@ -89,7 +93,7 @@ args = parse_args(s)
 jobid = "SLURM_JOB_ID" in keys(ENV) ? jobid = ENV["SLURM_JOB_ID"] : ""
 filename = string("$(args["outdir"])/sim_Nj_$(args["Nj"])_Ntraj_$(args["Ntraj"])_Tf_$(args["Tfinal"])_" *
             "dt_$(args["dt"])_kind_$(args["kind"])_kcoll_$(args["kcoll"])_Gamma_$(args["Gamma"])_" *
-            "omega_$(args["omega"])_eta_$(args["eta"])_$(jobid)")
+            "omega_$(args["omega"])_eta_$(args["eta"])_mu_$(args["mu"])_$(jobid)")
 
 let pkgstr = ""
     for (uuid, pkg) in Pkg.dependencies()
@@ -119,7 +123,8 @@ modelparams = ModelParameters(Nj=args["Nj"],
                               eta=args["eta"],
                               dt=args["dt"],
                               Tfinal=args["Tfinal"],
-                              outpoints=args["outpoints"])
+                              outpoints=args["outpoints"],
+                              mu=args["mu"])
 
 @info "Output every $(modelparams._outsteps) steps"
 
@@ -127,16 +132,17 @@ modelparams = ModelParameters(Nj=args["Nj"],
 
 init_time = @elapsed begin
     if args["kind"] == 0.0
-        @info "kind = 0, using collective state"
         @everywhere model = CollectiveDephasingModel($modelparams)
-        @everywhere initial_state = fixedj_css($modelparams.Nj)
+        @everywhere initial_state = fixedj_sss($modelparams.Nj, $modelparams.mu)
     else
         @assert args["kcoll"] == 0.0
         @everywhere model = LocalDephasingModel($modelparams, $args["liouvillianfile"])
-        @everywhere initial_state = blockdiag_css($modelparams.Nj)
+        @everywhere initial_state = blockdiag_sss($modelparams.Nj, $modelparams.mu)
     end
 end
 
+xi = squeezing_param(initial_state)
+@info "Initial spin squeezing $(xi)"
 # println(model)
 # println(initial_state)
 

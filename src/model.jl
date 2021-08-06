@@ -16,6 +16,7 @@ struct ModelParameters
     Tfinal::Real
     Ntime::Integer
     outpoints::Integer
+    mu::Real
     _outsteps::Integer
 
     function ModelParameters(; Nj::Integer=1,
@@ -26,7 +27,8 @@ struct ModelParameters
                                eta::Real=1.0,
                                dt::Real=0.0001,
                                Tfinal::Real=1.0,
-                               outpoints::Integer=0)
+                               outpoints::Integer=0,
+                               mu::Real=0.0)
 
         Ntime = Int(floor(Tfinal / dt)) # Number of timesteps
 
@@ -42,7 +44,7 @@ struct ModelParameters
         end
         # outpoints = Ntime
 
-        new(Nj, kind, kcoll, Gamma, omega, eta, dt, Tfinal, Ntime, outpoints, outsteps)
+        new(Nj, kind, kcoll, Gamma, omega, eta, dt, Tfinal, Ntime, outpoints, mu, outsteps)
     end
 end
 
